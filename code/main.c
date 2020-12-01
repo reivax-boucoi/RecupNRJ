@@ -33,7 +33,7 @@
 //  4  s :  0b100000
 //  8  s :  0b100001
 
-#define SLEEP_TIME   (5*60)			//sleep time in seconds (5min)
+#define SLEEP_TIME   (5*60)			//approximate sleep time in seconds (5min)
 #define SLEEP_MAXCNT (SLEEP_TIME/8)	//Number of wakeup cycles before taking a measurement (37)
 
 
@@ -55,7 +55,15 @@ void gotoSleep(void){
 
 
 int main(void){
+	
+	//disable unused peripherals
+	power_timer0_disable();
+	power_timer1_disable();
+	power_usi_disable();
+//	power_all_disable();
+//  power_adc_enable();
 
+	//initialize GPIOs
 	DDRB  |=  (1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN);
 	DDRB  &=~((1<<ETAS_ERR_PIN) | (1<<VCAP_PIN));
 	PORTB &=~((1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN));
@@ -63,11 +71,9 @@ int main(void){
 	while ( 1 ){
 		
 		
-		sleep_cnt++;
-		if(sleep_cnt >= SLEEP_MAXCNT){
+		if(sleep_cnt++ > SLEEP_MAXCNT){
 			sleep_cnt=0;
 			WDTCR=0x00;	//disable WD
-			
 			
 			//Measure capacitor voltage
 			ADMUX =0x01;		//ADC1 channel
