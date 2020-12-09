@@ -16,12 +16,12 @@
 
 
 #define ATIM_WAKEUP_DELAY 50 	//delay between ATIM powerup and ETAS powerup, in ms (50ms)
-#define ETAS_ONTIME_DELAY 1 	//ETAS ON-time in 10ms steps (2200=>22s)
+#define ETAS_ONTIME_DELAY 2200 	//ETAS ON-time in 10ms steps (2200=>22s)
 
 
 #define VCAP_THRESHOLD 512 		//VCAP_THRESHOLD = Vthreshold(Volts) /Vcc(Volts)*1024 (512=>2.5V)
 
-#define SLEEP_DURATION 0b000010	//delay between every wakeup (8s)
+#define SLEEP_DURATION 0b100001	//delay between every wakeup (8s)
 //  16 ms:  0b000000
 //  32 ms:  0b000001
 //  64 ms:  0b000010
