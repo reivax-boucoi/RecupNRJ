@@ -6,11 +6,7 @@ Working repository for Energy Harvesting project with Vincent Boitier, LAAS-CNRS
 
 ### Etat actuel du projet :
 
-ADC, WD, GPIO, sleep fonctionnels. Quelques problèmes de timing et polarité subsistent.
-
-Conso reportée à 40µA. Peut être due à la mesure du bref réveil toutes les 8s, à un pb de pull-up, ou autre.
-
-En attente de retour de VB.
+ADC, WD, GPIO, sleep fonctionnels. 
 
 --- 
 
