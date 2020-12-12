@@ -6,7 +6,7 @@ Working repository for Energy Harvesting project with Vincent Boitier, LAAS-CNRS
 
 ### Etat actuel du projet :
 
-ADC, WD, GPIO, sleep fonctionnels. Diagramme temporel validé.
+ADC, WD, GPIO, sleep fonctionnels. Diagramme temporel validé. Blanking validé.
 
 --- 
 
