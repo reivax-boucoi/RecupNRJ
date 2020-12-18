@@ -6,7 +6,7 @@ Working repository for Energy Harvesting project with Vincent Boitier, LAAS-CNRS
 
 ### Etat actuel du projet :
 
-Ebauche de code C disponible dans le dossier `code`. Code périphériques testé fonctionnel (WD, sleep, GPIO & ADC).
+Première version de code C disponible dans le dossier `code`. Code périphériques testé fonctionnel (WD, sleep, GPIO & ADC).
 
 Proposition de schéma électrique (incomplet) : `schematic.pdf`
 
