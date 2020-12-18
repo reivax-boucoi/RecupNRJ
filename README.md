@@ -15,7 +15,7 @@ Chronogramme réel dans `code/logic`, visible avec Logic 1.2.18
 
 ### Microcontrolleur et programmation
 
-Microcontrolleur : Attiny25 (2K Flash, 8 Pin package (DIP, SOIC), ADC 10 bit, ***Conso 2µA@5V en mode sleep***, 1$ en qté individuelle)
+Microcontrolleur : Attiny25 (2K Flash, 8 Pin package (DIP, SOIC), ADC 10 bit, ***Conso 2µA@5V en mode sleep, 1.2mA run mode***, 1$ en qté individuelle)
 
 Programmation via une sonde type Usbasp/Usbtiny. Compilation avec `avr-gcc`, upload avec `avrdude`. Un script de programmation est fourni `code/makefile_t85.bat`.
 
