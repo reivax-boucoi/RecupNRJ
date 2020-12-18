@@ -10,8 +10,10 @@ Ebauche de code C disponible dans le dossier `code`. Code périphériques testé
 
 Proposition de schéma électrique (incomplet) : `schematic.pdf`
 
-Chronogramme réel dans `code/logic`, visible avec Logic 1.2.18
+Chronogramme réel dans `code/logic`, visible avec Logic 1.2.18. Entrées simulées manuellement pour vérifier le bon fonctionnement.
 
+
+--- 
 
 ### Microcontrolleur et programmation
 
@@ -21,33 +23,36 @@ Programmation via une sonde type Usbasp/Usbtiny. Compilation avec `avr-gcc`, upl
 
 Je peux fournir microcontrolleur, sonde de programmation et câble (le tout pour moins de 10$).
 
+--- 
+
 ### Déroulement du code (interpétation de la spécification)
 
-Wakeup périodique du microncontrolleur (max toutes les 8s, rallongement possible avec un compteur software).
+1. Wakeup périodique du microncontrolleur (max toutes les 8s, rallongement possible avec un compteur software).
 
-Seuil de mesure de la tension des capas: réglable grâce au #define VCAP_THRESHOLD
+2. Seuil de mesure de la tension des capas: réglable grâce au #define VCAP_THRESHOLD
 
-Si mesure inférieure au seuil -> sleep (8s).
+3. Si mesure inférieure au seuil -> sleep (8s).
 
-Allumage de l'ATIM
+4. Allumage de l'ATIM
 
-Délai ATIM_WAKEUP_DELAY
+5. Délai ATIM_WAKEUP_DELAY
 
-Allumage de l'ETAS
+6. Allumage de l'ETAS
 
-Démarrage compteur.
+7. Démarrage compteur.
 
-Attente de la fin de l'erreur ETAS
+8. Attente de la fin de l'erreur ETAS
 
-Quand fin erreur : lancement de la mesure (IN1)
+9. Quand fin erreur : lancement de la mesure (IN1)
 
-Attente de la fin du compteur (22s)
+10. Attente de la fin du compteur (22s)
 
-Extinction de l'ETAS, ATIM et IN1.
+11. Extinction de l'ETAS, ATIM et IN1.
 
-Sleep(8s).
+12. Sleep(8s).
 
 
+--- 
 ### Questions : 
 
 Une alimentation pour le microcontrolleur est-elle disponible ? (Entre 2.5 et 5.5V) Sinon je peux prévoir un LDO 5V ou 3v3 avec low-iq(<1µA).  
