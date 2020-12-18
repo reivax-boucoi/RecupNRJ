@@ -1,0 +1,53 @@
+Nous avons développé au LAAS une solution de récup d’NRJ avec un TEG et du stockage par supercap mais le système à alimenter consomme BEAUCOUP trop si on le laisse en permanence, comme des mesures faites récemment nous l’ont montré. => il faut diminuer la conso de la charge.
+
+Pour cela , je cherche quelqu’un pour développer rapidement un programme qui fasse le boulot suivant :
+
+ 
+
+Sleep mode la plupart du temps. (qques µA@3,3V ou 5V)
+
+Réveil une fois de temps en temps (ou sinon réveil sur un niveau de tension)
+
+ 
+
+Au réveil, mesurer une tension analogique (celle d’un étage à Supercap , tension entre 2,0 et 5V)
+
+Si la tension mesurée est sup à un seuil logiciel
+
+=> réveil du reste c’est à dire :
+
+               Pilotage d’un switch pour alimenter un modem LORA (30mA sous 12V pendant 20s)
+
+               Pilotage d’un switch de puissance pour alimenter une interface ETAS et une sonde lambda (2A sous 12V pendant 20s)
+
+               Récupération d’un signal logique venant de l’interface ETAS qui informe sur mesure dispo
+
+               Quand mesure dispo, activation par un signal logique vers le modema ETAS du déclenchement de la mesure et de son envoi en radio
+
+Couper alimentation interface ETAS et une sonde lambda
+
+Couper alimentation Modem LORA
+
+Retour au sleep mode.
+
+Si la tension mesurée est inf  à un seuil logiciel
+
+Retour au sleep mode.
+
+ 
+
+J’aurai besoin de la trame du pgmme avec qques explication + comment programmer le bazar  (matériel et logiciel) si je souhaite modifier des trucs.
+
+ 
+
+Pour facturer, peut-être est-il possible de passer par la junior entreprise de l’INSA si elle existe ? ou sinon on trouvera une solution.
+
+Etes-vous intéressé ?
+
+Avez-vous un peu de temps pour faire une trame de programme qui fasse cela et me montrer comment jouer avec ?
+
+ 
+
+(on peut utiliser le matériel que vous avez eu lors du projet recup NRJ )
+
+ci-dessous une ébauche des chronogrammes et de l’organisation matérielle.
