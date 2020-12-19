@@ -25,7 +25,7 @@ Je peux fournir microcontrolleur, sonde de programmation et câble (le tout pour
 
 --- 
 
-### Déroulement du code (interpétation de la spécification)
+### Déroulement du code (interprétation de la spécification)
 
 1. Wakeup périodique du microncontrolleur (max toutes les 8s, rallongement possible avec un compteur software).
 
