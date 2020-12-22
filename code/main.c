@@ -1,8 +1,9 @@
 
-#define F_CPU 1000000
+#define F_CPU 1000000			//1MHz, match to device fuse settings
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/power.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
 #include <util/delay.h>
@@ -13,13 +14,14 @@
 #define ATIM_IN1_PIN PINB0		//Output, High=ATIM should take measurement
 #define ETAS_ERR_PIN PINB4		//Input, LOW=ETAS ready for measurement
 
-#define ATIM_WAKEUP_DELAY 50 	//delay between ATIM powerup and ETAS powerup, in ms
-#define ETAS_ONTIME_DELAY 2200 	//ETAS ON-time in 10ms steps (2200=>22s)
+
+#define ATIM_WAKEUP_DELAY 50 	//delay between ATIM powerup and ETAS powerup, in ms (50ms)
+#define ETAS_ONTIME_DELAY 1 	//ETAS ON-time in 10ms steps (2200=>22s)
 
 
-#define VCAP_THRESHOLD 512 		//VCAP_THRESHOLD = Vthreshold(Volts) /Vcc(Volts)*1024 
+#define VCAP_THRESHOLD 512 		//VCAP_THRESHOLD = Vthreshold(Volts) /Vcc(Volts)*1024 (512=>2.5V)
 
-#define SLEEP_DURATION 0b100001
+#define SLEEP_DURATION 0b000010	//delay between every wakeup (8s)
 //  16 ms:  0b000000
 //  32 ms:  0b000001
 //  64 ms:  0b000010
@@ -31,7 +33,11 @@
 //  4  s :  0b100000
 //  8  s :  0b100001
 
+#define SLEEP_TIME   (5*60)			//sleep time in seconds (5min)
+#define SLEEP_MAXCNT (SLEEP_TIME/8)	//Number of wakeup cycles before taking a measurement (37)
 
+
+volatile uint8_t sleep_cnt=0;
 
 void gotoSleep(void){
 	//ADCSRA &=~ (1<<ADEN);
@@ -56,33 +62,38 @@ int main(void){
 
 	while ( 1 ){
 		
-		WDTCR=0x00;	//disable WD
 		
-		
-		//Measure capacitor voltage
-		ADMUX =0x01;		//ADC1 channel
-		ADCSRA = (1<<ADEN) | (1<<ADPS2);
-		ADCSRA |= (1 << ADSC);
-		while (ADCSRA & (1 << ADSC));			//wait for conversion
-		uint16_t vCap = ADCL; 
-		vCap = ADCH<<8 | vCap;
+		sleep_cnt++;
+		if(sleep_cnt >= SLEEP_MAXCNT){
+			sleep_cnt=0;
+			WDTCR=0x00;	//disable WD
+			
+			
+			//Measure capacitor voltage
+			ADMUX =0x01;		//ADC1 channel
+			ADCSRA = (1<<ADEN) | (1<<ADPS2);
+			ADCSRA |= (1 << ADSC);
+			while (ADCSRA & (1 << ADSC));			//wait for conversion
+			uint16_t vCap = ADCL; 
+			vCap = ADCH<<8 | vCap;
 
-		if(vCap>VCAP_THRESHOLD){				//measurement is possible
-	
-			PORTB |= (1<<ATIM_PWR_PIN);			//ATIM powerup
-			_delay_ms(ATIM_WAKEUP_DELAY);
-			PORTB |= (1<<ETAS_PWR_PIN);			//ETAS powerup
-			
-			for(uint16_t cnt=0; cnt<ETAS_ONTIME_DELAY; cnt++){	//wait for 22s
-				_delay_ms(10);
-				if(!(PINB & (1<<ETAS_ERR_PIN))){	//If ETAS sends no error
-					PORTB |= (1<<ATIM_IN1_PIN);	//ATIM takes measurement
+			if(vCap > VCAP_THRESHOLD){				//measurement is possible
+		
+				PORTB |= (1<<ATIM_PWR_PIN);			//ATIM powerup
+				_delay_ms(ATIM_WAKEUP_DELAY);
+				PORTB |= (1<<ETAS_PWR_PIN);			//ETAS powerup
+				
+				for(uint16_t cnt=0; cnt<ETAS_ONTIME_DELAY; cnt++){	//wait for 22s
+					_delay_ms(10);
+					if(!(PINB & (1<<ETAS_ERR_PIN))){	//If ETAS sends no error
+						PORTB |= (1<<ATIM_IN1_PIN);	//ATIM takes measurement
+					}
 				}
+				
+				PORTB &=~ (1<<ETAS_PWR_PIN);		//ETAS powerdown
+				PORTB &=~ (1<<ATIM_PWR_PIN);		//ATIM powerdown
+				PORTB &=~ (1<<ATIM_IN1_PIN);
 			}
-			
-			PORTB &=~ (1<<ETAS_PWR_PIN);		//ETAS powerdown
-			PORTB &=~ (1<<ATIM_PWR_PIN);		//ATIM powerdown
-			PORTB &=~ (1<<ATIM_IN1_PIN);
 		}
 		gotoSleep();
 	}
