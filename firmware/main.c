@@ -17,6 +17,7 @@
 
 #define ATIM_WAKEUP_DELAY 50 	//delay between ATIM powerup and ETAS powerup, in ms (50ms)
 #define ETAS_ONTIME_DELAY 2200 	//ETAS ON-time in 10ms steps (2200=>22s)
+#define ETAS_MEASURE_DELAY 100 //measurement delay. Yet to define (100 ms arbitrary choice)
 
 
 #define VCAP_THRESHOLD 512 		//VCAP_THRESHOLD = Vthreshold(Volts) /Vcc(Volts)*1024 (512=>2.5V)
@@ -38,6 +39,8 @@
 
 
 volatile uint8_t sleep_cnt=0;
+volatile uint8_t measure_is_done=0; 
+
 
 void gotoSleep(void){
 	//ADCSRA &=~ (1<<ADEN);
@@ -89,12 +92,18 @@ int main(void){
 				_delay_ms(ATIM_WAKEUP_DELAY);
 				PORTB |= (1<<ETAS_PWR_PIN);			//ETAS powerup
 				
-				for(uint16_t cnt=0; cnt<ETAS_ONTIME_DELAY; cnt++){	//wait for 22s
-					_delay_ms(10);
-					if(!(PINB & (1<<ETAS_ERR_PIN))){	//If ETAS sends no error
-						PORTB |= (1<<ATIM_IN1_PIN);	//ATIM takes measurement
-					}
+				
+				while((!(PINB & (1<<ETAS_ERR_PIN))) && (!measure_is_done)) { // waiting for no error from ETAS 
+
+					PORTB |= (1<<ATIM_IN1_PIN);	//ATIM takes measurement
+					_delay_ms(ETAS_MEASURE_DELAY); // wait for the measurement to be done
+					measure_is_done=1; // add this in order to not be stuck in the while 
+
 				}
+				
+				measure_is_done=0; 
+
+				
 				
 				PORTB &=~ (1<<ETAS_PWR_PIN);		//ETAS powerdown
 				PORTB &=~ (1<<ATIM_PWR_PIN);		//ATIM powerdown
