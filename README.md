@@ -7,7 +7,7 @@ Working repository for Energy Harvesting project with Vincent Boitier, LAAS-CNRS
 ### Etat actuel du projet :
 
 ADC, WD, GPIO, sleep fonctionnels. Diagramme temporel validé. Blanking validé.
-Conso 10µA au premier tour, mais 235µA ensuite ! Peut-être l'ADC reste-il alimenté ?
+Conso 10µA au premier tour, mais 235µA ensuite ! Peut-être l'ADC reste-il alimenté ? cf datasheet Attiny25
 
 --- 
 
