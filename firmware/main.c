@@ -42,7 +42,7 @@ volatile uint16_t sleep_cnt=0;
 volatile int16_t timeout_cnt=0;
 
 void gotoSleep(void){
-	//ADCSRA &=~ (1<<ADEN);
+	ADCSRA &=~ (1<<ADEN);
 	MCUSR  &=~ (1<<WDRF);
 	WDTCR  |=  (1<<WDCE) | (1<<WDE);
 	WDTCR  =   (1<<WDCE) | SLEEP_DURATION;
@@ -52,18 +52,18 @@ void gotoSleep(void){
 	sei();
 	sleep_mode();
 	sleep_disable();
-	//ADCSRA |= (1<<ADEN);
+	ADCSRA |= (1<<ADEN);
 }
 
 
 int main(void){
 	
 	//disable unused peripherals to save power
-	power_timer0_disable();
+/*	power_timer0_disable();
 	power_timer1_disable();
-	power_usi_disable();
-//	power_all_disable();
-//  power_adc_enable();
+	power_usi_disable();*/
+	power_all_disable();
+    power_adc_enable();
 
 	//initialize GPIOs
 	DDRB  |=  (1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN);						//initialize GPIOs as outputs
