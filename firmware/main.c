@@ -59,8 +59,8 @@ void gotoSleep(void){
 int main(void){
 	
 	//disable unused peripherals to save power
-/*	power_timer0_disable();
-	power_timer1_disable();
+//	power_timer0_disable();
+/*	power_timer1_disable();
 	power_usi_disable();*/
 	power_all_disable();
     power_adc_enable();
