@@ -17,3 +17,6 @@ To upload :
 avrdude -P usb -p t85 -c usbtiny -U flash:w:main.hex
 
 Or use the provided makefile
+
+
+Change "attiny85" & "t85" to suit your device ("attiny45", "t45", "attiny25", "t25")
