@@ -1,7 +1,7 @@
 @echo OFF
 
 :BEGIN
-avr-gcc -g -Os -mmcu=attiny85 -c main.c && (
+avr-gcc -g -Os -Wall -mmcu=attiny85 -c main.c && (
   echo Pas d'erreurs !
 ) || (
   echo Erreurs !

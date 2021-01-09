@@ -96,7 +96,7 @@ int main(void){
 
 				while (timeout_cnt++ <= ETAS_ERR_TIMEOUT){
 					_delay_ms(10);
-					if (!(PINB & (1<<ETAS_ERR_PIN)) && timeout>0){//do not sample ETAS_ERR_PIN until blanking period has elapsed
+					if (!(PINB & (1<<ETAS_ERR_PIN)) && timeout_cnt>0){//do not sample ETAS_ERR_PIN until blanking period has elapsed
 						PORTB |= (1<<ATIM_IN1_PIN);		//ATIM takes measurement
 						_delay_ms(ETAS_MEASURE_DELAY); 	//wait for measurement to be done
 						break;
