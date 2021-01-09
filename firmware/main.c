@@ -16,9 +16,9 @@
 
 
 #define ATIM_WAKEUP_DELAY 50 	//delay between ATIM powerup and ETAS powerup, in ms (50ms)
-#define ETAS_ONTIME_DELAY 2200 	//ETAS ON-time in 10ms steps (2200=>22s)
-#define ETAS_MEASURE_DELAY 100 //measurement delay. Yet to define (100 ms arbitrary choice)
-#define ETAS_ERR_TIMEOUT 35000 // timeout in case ETAS_ERR_PIN always HIGH (probe never ready) 
+#define ETAS_MEASURE_DELAY 5000 //measurement delay. Yet to define
+#define ETAS_ERR_BLANKING 500 // blanking period at ETAS powerup before reading the ETAS_ERR_PIN, in 10ms steps (here 5s)
+#define ETAS_ERR_TIMEOUT 3500 // timeout in case ETAS_ERR_PIN always HIGH (probe never ready), in 10ms steps (here 35s)
 
 #define VCAP_THRESHOLD 512 		//VCAP_THRESHOLD = Vthreshold(Volts) /Vcc(Volts)*1024 (512=>2.5V)
 
@@ -38,8 +38,8 @@
 #define SLEEP_MAXCNT (SLEEP_TIME/8)	//Number of wakeup cycles before taking a measurement (37)
 
 
-volatile uint8_t sleep_cnt=0;
-volatile uint8_t timeout_cnt=0;
+volatile uint16_t sleep_cnt=0;
+volatile int16_t timeout_cnt=0;
 
 void gotoSleep(void){
 	//ADCSRA &=~ (1<<ADEN);
@@ -66,15 +66,16 @@ int main(void){
 //  power_adc_enable();
 
 	//initialize GPIOs
-	DDRB  |=  (1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN);
-	DDRB  &=~((1<<ETAS_ERR_PIN) | (1<<VCAP_PIN));
-	PORTB &=~((1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN));
+	DDRB  |=  (1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN);	//initialize GPIOs as outputs
+	DDRB  &=~((1<<ETAS_ERR_PIN) | (1<<VCAP_PIN));							//initialize GPIOs as inputs
+	PORTB &=~((1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN));	//disable internal pullups
 
 	while ( 1 ){
 		
 		
 		if(sleep_cnt++ > SLEEP_MAXCNT){
 			sleep_cnt=0;
+			timeout_cnt=-ETAS_ERR_BLANKING;
 			WDTCR=0x00;	//disable WD
 			
 			//Measure capacitor voltage
@@ -93,22 +94,14 @@ int main(void){
 				
 				
 
-				while ((!(PINB & (1<<ETAS_ERR_PIN))) && (timeout_cnt++ <= ETAS_ERR_TIMEOUT)); 
-
-				if (!(PINB & (1<<ETAS_ERR_PIN)))
-				{
-					PORTB |= (1<<ATIM_IN1_PIN);	//ATIM takes measurement
-					_delay_ms(ETAS_MEASURE_DELAY); // wait for measurement to be done
+				while (timeout_cnt++ <= ETAS_ERR_TIMEOUT){
+					_delay_ms(10);
+					if (!(PINB & (1<<ETAS_ERR_PIN)) && timeout>0){
+						PORTB |= (1<<ATIM_IN1_PIN);		//ATIM takes measurement
+						_delay_ms(ETAS_MEASURE_DELAY); 	//wait for measurement to be done
+						break;
+					}
 				}
-
-
-				/* Version sans timeout 
-				while(!(PINB & (1<<ETAS_ERR_PIN))) ; // waiting for no error from ETAS 
-					PORTB |= (1<<ATIM_IN1_PIN);	//ATIM takes measurement
-					_delay_ms(ETAS_MEASURE_DELAY); // wait for the measurement to be done
-				*/
-
-				
 				
 				PORTB &=~ (1<<ETAS_PWR_PIN);		//ETAS powerdown
 				PORTB &=~ (1<<ATIM_PWR_PIN);		//ATIM powerdown

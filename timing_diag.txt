@@ -1,0 +1,20 @@
+https://wavedrom.com/editor.html?%7Bsignal%3A%20%5B%0A%20%20%7Bname%3A%20%27ATIM_PWR_PIN%27%2C%20wave%3A%20%270h..%7C.l%27%2C%20%20%20%20node%3A%20%27.a.....%27%7D%2C%0A%20%20%7Bname%3A%20%27ETAS_PWR_PIN%27%2C%20wave%3A%20%270.h.%7C.l%27%2C%20%20%20%20node%3A%20%27..b....%27%7D%2C%0A%20%20%7Bname%3A%20%27ETAS_ERR_PIN%27%2C%20wave%3A%20%270.xh%7Cl.%27%2C%20%20node%3A%20%27.......%27%7D%2C%0A%20%20%7Bname%3A%20%27ATIM_IN1_PIN%27%2C%20wave%3A%20%270...%7Chl%27%2C%20%20%20%20node%3A%20%27..cd.ef%27%7D%2C%0A%20%20%7Bname%3A%20%27Status%27%2C%20wave%3A%20%27x.%3D%3D.%3D%3D%27%2C%20%20node%3A%20%27.......%27%2C%20data%3A%20%5B%27blank%27%2C%20%27measure%27%2C%27read%27%2C%20%27shutdown%27%5D%7D%0A%5D%2C%20%20%0A%0A%20config%3A%20%7B%20hscale%3A%203.5%20%7D%2C%0A%20head%3A%7B%0A%20%20%20text%3A%27Timing%20diagram%27%2C%0A%20%7D%2C%0A%20edge%3A%20%5B%0A%20%20%20%27a~b%20ATIM_WAKEUP_DELAY%27%2C%20%27c~d%20ETAS_ERR_BLANKING%27%2C%20%27e~f%20ETAS_MEASURE_DELAY%27%0A%20%20%5D%0A%0A%7D%0A
+
+
+{signal: [
+  {name: 'ATIM_PWR_PIN', wave: '0h..|.l',    node: '.a.....'},
+  {name: 'ETAS_PWR_PIN', wave: '0.h.|.l',    node: '..b....'},
+  {name: 'ETAS_ERR_PIN', wave: '0.xh|l.',  node: '.......'},
+  {name: 'ATIM_IN1_PIN', wave: '0...|hl',    node: '..cd.ef'},
+  {name: 'Status', wave: 'x.==.==',  node: '.......', data: ['blank', 'measure','read', 'shutdown']}
+],  
+
+ config: { hscale: 3.5 },
+ head:{
+   text:'Timing diagram',
+ },
+ edge: [
+   'a~b ATIM_WAKEUP_DELAY', 'c~d ETAS_ERR_BLANKING', 'e~f ETAS_MEASURE_DELAY'
+  ]
+
+}
