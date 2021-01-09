@@ -16,11 +16,11 @@
 
 
 #define ATIM_WAKEUP_DELAY 50 	//delay between ATIM powerup and ETAS powerup, in ms (50ms)
-#define ETAS_MEASURE_DELAY 5000 //measurement delay. Yet to define
+#define ETAS_MEASURE_DELAY 5000 //measurement delay (5s)
 #define ETAS_ERR_BLANKING 500 // blanking period at ETAS powerup before reading the ETAS_ERR_PIN, in 10ms steps (here 5s)
 #define ETAS_ERR_TIMEOUT 3500 // timeout in case ETAS_ERR_PIN always HIGH (probe never ready), in 10ms steps (here 35s)
 
-#define VCAP_THRESHOLD 512 		//VCAP_THRESHOLD = Vthreshold(Volts) /Vcc(Volts)*1024 (512=>2.5V)
+#define VCAP_THRESHOLD 512 		//VCAP_THRESHOLD = Vthreshold(Volts) / Vcc(Volts)*1024 (512<=>2.5V)
 
 #define SLEEP_DURATION 0b100001	//delay between every wakeup (8s)
 //  16 ms:  0b000000
@@ -58,7 +58,7 @@ void gotoSleep(void){
 
 int main(void){
 	
-	//disable unused peripherals
+	//disable unused peripherals to save power
 	power_timer0_disable();
 	power_timer1_disable();
 	power_usi_disable();
@@ -75,7 +75,7 @@ int main(void){
 		
 		if(sleep_cnt++ > SLEEP_MAXCNT){
 			sleep_cnt=0;
-			timeout_cnt=-ETAS_ERR_BLANKING;
+			timeout_cnt=-ETAS_ERR_BLANKING;	//load blanking period
 			WDTCR=0x00;	//disable WD
 			
 			//Measure capacitor voltage
@@ -83,7 +83,7 @@ int main(void){
 			ADCSRA = (1<<ADEN) | (1<<ADPS2);
 			ADCSRA |= (1 << ADSC);
 			while (ADCSRA & (1 << ADSC));			//wait for conversion
-			uint16_t vCap = ADCL; 
+			uint16_t vCap = ADCL; 					//get conversion result
 			vCap = ADCH<<8 | vCap;
 
 			if(vCap > VCAP_THRESHOLD){				//measurement is possible
@@ -96,7 +96,7 @@ int main(void){
 
 				while (timeout_cnt++ <= ETAS_ERR_TIMEOUT){
 					_delay_ms(10);
-					if (!(PINB & (1<<ETAS_ERR_PIN)) && timeout>0){
+					if (!(PINB & (1<<ETAS_ERR_PIN)) && timeout>0){//do not sample ETAS_ERR_PIN until blanking period has elapsed
 						PORTB |= (1<<ATIM_IN1_PIN);		//ATIM takes measurement
 						_delay_ms(ETAS_MEASURE_DELAY); 	//wait for measurement to be done
 						break;
