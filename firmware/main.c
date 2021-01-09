@@ -66,9 +66,9 @@ int main(void){
 //  power_adc_enable();
 
 	//initialize GPIOs
-	DDRB  |=  (1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN);	//initialize GPIOs as outputs
-	DDRB  &=~((1<<ETAS_ERR_PIN) | (1<<VCAP_PIN));							//initialize GPIOs as inputs
-	PORTB &=~((1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN));	//disable internal pullups
+	DDRB  |=  (1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN);						//initialize GPIOs as outputs
+	DDRB  &=~((1<<ETAS_ERR_PIN) | (1<<VCAP_PIN));												//initialize GPIOs as inputs
+	PORTB &=~((1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN) | (1<<ETAS_ERR_PIN));	//disable internal pullups
 
 	while ( 1 ){
 		
