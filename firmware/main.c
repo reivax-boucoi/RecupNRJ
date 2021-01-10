@@ -49,7 +49,7 @@ void gotoSleep(void){
 	WDTCR  |=  (1<<WDIE);
 	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 	sleep_enable();
-	sei();
+	sei();					//enable interrupts
 	sleep_mode();
 	sleep_disable();
 	ADCSRA |= (1<<ADEN);
