@@ -42,14 +42,14 @@ volatile uint16_t sleep_cnt=0;
 volatile int16_t timeout_cnt=0;
 
 void gotoSleep(void){
-	ADCSRA &=~ (1<<ADEN);	//disable ADC before sleep
+	ADCSRA &=~ (1<<ADEN);					//disable ADC before sleep
 	MCUSR  &=~ (1<<WDRF);
 	WDTCR  |=  (1<<WDCE) | (1<<WDE);
 	WDTCR  =   (1<<WDCE) | SLEEP_DURATION;
 	WDTCR  |=  (1<<WDIE);
 	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 	sleep_enable();
-	sei();					//enable interrupts
+	sei();									//enable interrupts
 	sleep_mode();
 	sleep_disable();
 	ADCSRA |= (1<<ADEN);
