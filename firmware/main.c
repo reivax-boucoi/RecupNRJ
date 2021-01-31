@@ -1,4 +1,3 @@
-
 #define F_CPU 1000000			//1MHz, match to device fuse settings
 
 #include <avr/io.h>
@@ -42,75 +41,72 @@ volatile uint16_t sleep_cnt=0;
 volatile int16_t timeout_cnt=0;
 
 void gotoSleep(void){
-	ADCSRA &=~ (1<<ADEN);					//disable ADC before sleep
-	MCUSR  &=~ (1<<WDRF);
-	WDTCR  |=  (1<<WDCE) | (1<<WDE);
-	WDTCR  =   (1<<WDCE) | SLEEP_DURATION;
-	WDTCR  |=  (1<<WDIE);
-	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-	sleep_enable();
-	sei();									//enable interrupts
-	sleep_mode();
-	sleep_disable();
-	ADCSRA |= (1<<ADEN);
+    ADCSRA &=~ (1<<ADEN);					//disable ADC before sleep
+    MCUSR  &=~ (1<<WDRF);
+    WDTCR  |=  (1<<WDCE) | (1<<WDE);
+    WDTCR  =   (1<<WDCE) | SLEEP_DURATION;
+    WDTCR  |=  (1<<WDIE);
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+    sleep_enable();
+    sei();									//enable interrupts
+    sleep_mode();
+    sleep_disable();
+    ADCSRA |= (1<<ADEN);                   //re-enable ADC after sleep
 }
 
 
 int main(void){
-	
-	//disable unused peripherals to save power
-//	power_timer0_disable();
-//	power_timer1_disable();
-//	power_usi_disable();
-	power_all_disable();
+    
+    //disable unused peripherals to save power
+    power_all_disable();
     power_adc_enable();
-
-	//initialize GPIOs
-	DDRB  |=  (1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN);						//initialize GPIOs as outputs
-	DDRB  &=~((1<<ETAS_ERR_PIN) | (1<<VCAP_PIN));												//initialize GPIOs as inputs
-	PORTB &=~((1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN) | (1<<ETAS_ERR_PIN));	//disable internal pullups
-
-	while ( 1 ){
-		
-		
-		if(sleep_cnt++ > SLEEP_MAXCNT){
-			sleep_cnt=0;
-			timeout_cnt=-ETAS_ERR_BLANKING;	//load blanking period
-			WDTCR=0x00;	//disable WD
-			
-			//Measure capacitor voltage
-			ADMUX =0x01;		//ADC1 channel
-			ADCSRA = (1<<ADEN) | (1<<ADPS2);
-			ADCSRA |= (1 << ADSC);
-			while (ADCSRA & (1 << ADSC));			//wait for conversion
-			uint16_t vCap = ADCL; 					//get conversion result
-			vCap = ADCH<<8 | vCap;
-
-			if(vCap > VCAP_THRESHOLD){				//measurement is possible
-		
-				PORTB |= (1<<ATIM_PWR_PIN);			//ATIM powerup
-				_delay_ms(ATIM_WAKEUP_DELAY);
-				PORTB |= (1<<ETAS_PWR_PIN);			//ETAS powerup
-				
-				
-
-				while (timeout_cnt++ <= ETAS_ERR_TIMEOUT){
-					_delay_ms(10);
-					if (!(PINB & (1<<ETAS_ERR_PIN)) && timeout_cnt>0){//do not sample ETAS_ERR_PIN until blanking period has elapsed
-						PORTB |= (1<<ATIM_IN1_PIN);		//ATIM takes measurement
-						_delay_ms(ETAS_MEASURE_DELAY); 	//wait for measurement to be done
-						break;
-					}
-				}
-				
-				PORTB &=~ (1<<ETAS_PWR_PIN);		//ETAS powerdown
-				PORTB &=~ (1<<ATIM_PWR_PIN);		//ATIM powerdown
-				PORTB &=~ (1<<ATIM_IN1_PIN);
-			}
-		}
-		gotoSleep();
-	}
-  return 0;
+    
+    //initialize GPIOs
+    DDRB  |=  (1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN);						//initialize GPIOs as outputs
+    DDRB  &=~((1<<ETAS_ERR_PIN) | (1<<VCAP_PIN));												//initialize GPIOs as inputs
+    PORTB &=~((1<<ATIM_PWR_PIN) | (1<<ETAS_PWR_PIN) | (1<<ATIM_IN1_PIN) | (1<<ETAS_ERR_PIN));	//disable internal pullups
+    
+    while (1){
+        
+        
+        if(++sleep_cnt >= SLEEP_MAXCNT){
+            sleep_cnt=0;
+            timeout_cnt=-ETAS_ERR_BLANKING;	//load blanking period
+            WDTCR=0x00;	//disable WD
+            
+            //Measure capacitor voltage
+            ADMUX =0x01;		//ADC1 channel
+            ADCSRA = (1<<ADEN) | (1<<ADPS2);
+            ADCSRA |= (1 << ADSC);
+            while (ADCSRA & (1 << ADSC));			//wait for conversion
+            uint16_t vCap = ADCL; 					//get conversion result
+            vCap = ADCH<<8 | vCap;
+            
+            if(vCap > VCAP_THRESHOLD){				//measurement is possible
+                
+                PORTB |= (1<<ATIM_PWR_PIN);			//ATIM powerup
+                _delay_ms(ATIM_WAKEUP_DELAY);
+                PORTB |= (1<<ETAS_PWR_PIN);			//ETAS powerup
+                
+                
+                
+                while (timeout_cnt++ <= ETAS_ERR_TIMEOUT){
+                    _delay_ms(10);
+                    if (!(PINB & (1<<ETAS_ERR_PIN)) && timeout_cnt>0){//do not sample ETAS_ERR_PIN until blanking period has elapsed
+                        PORTB |= (1<<ATIM_IN1_PIN);		//ATIM takes measurement
+                        _delay_ms(ETAS_MEASURE_DELAY); 	//wait for measurement to be done
+                        break;
+                    }
+                }
+                
+                PORTB &=~ (1<<ETAS_PWR_PIN);		//ETAS powerdown
+                PORTB &=~ (1<<ATIM_PWR_PIN);		//ATIM powerdown
+                PORTB &=~ (1<<ATIM_IN1_PIN);
+            }
+        }
+        gotoSleep();
+    }
+    return 0;
 }
 
 ISR(WDT_vect){
